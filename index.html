@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+  <title>Kalender Islami · Sahur · Imsak · Buka</title>
+  <!-- Tailwind via CDN + inter font -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { transition: background 0.6s ease, color 0.4s ease; }
+    /* Geometri ornamen halus di border kalender */
+    .islamic-border {
+      border: 1px solid rgba(180, 150, 120, 0.3);
+      position: relative;
+      background: rgba(255, 248, 235, 0.5);
+      backdrop-filter: blur(2px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+    }
+    .islamic-border::before {
+      content: "✦ ✦ ✦";
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: inherit;
+      padding: 0 16px;
+      font-size: 12px;
+      letter-spacing: 6px;
+      color: #b48c6c;
+      opacity: 0.5;
+      border-radius: 40px;
+    }
+    .islamic-border::after {
+      content: "✦ ✦ ✦";
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: inherit;
+      padding: 0 16px;
+      font-size: 12px;
+      letter-spacing: 6px;
+      color: #b48c6c;
+      opacity: 0.5;
+      border-radius: 40px;
+    }
+    /* mode malam override */
+    .dark-mode .islamic-border {
+      background: rgba(30, 40, 45, 0.6);
+      border-color: rgba(180, 200, 180, 0.15);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .dark-mode .islamic-border::before,
+    .dark-mode .islamic-border::after {
+      color: #6a8f7a;
+      opacity: 0.3;
+    }
+    /* floating WA pulse */
+    .wa-pulse {
+      animation: pulse-wa 2s infinite;
+      transition: all 0.2s;
+    }
+    @keyframes pulse-wa {
+      0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+      70% { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+    }
+    .tooltip-wa {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .wa-group:hover .tooltip-wa {
+      visibility: visible;
+      opacity: 1;
+    }
+    /* countdown / jam */
+    .glass-card {
+      background: rgba(255, 245, 235, 0.5);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .dark-mode .glass-card {
+      background: rgba(20, 30, 28, 0.6);
+      border-color: rgba(120, 140, 130, 0.15);
+    }
+    /* list hijriah */
+    .hijri-month {
+      transition: all 0.2s;
+    }
+    .dark-mode .hijri-month {
+      color: #d4ddd4;
+    }
+    /* mobile friendly */
+    @media (max-width: 640px) {
+      .islamic-border::before, .islamic-border::after {
+        font-size: 8px;
+        letter-spacing: 3px;
+        top: -10px;
+        bottom: -10px;
+      }
+    }
+    /* scroll halus */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f0ebe4; }
+    ::-webkit-scrollbar-thumb { background: #b8a392; border-radius: 12px; }
+    .dark-mode ::-webkit-scrollbar-track { background: #2a3330; }
+    .dark-mode ::-webkit-scrollbar-thumb { background: #5f7a6b; }
+  
+  /* Footer Sosial Media */
+.footer-social a {
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(180, 150, 120, 0.1);
+  color: #8b7a6a;
+  text-decoration: none;
+  font-size: 16px;
+}
+.footer-social a:hover {
+  transform: translateY(-2px);
+  background: rgba(180, 150, 120, 0.2);
+  color: #3d352c;
+}
+.dark-mode .footer-social a {
+  background: rgba(120, 140, 130, 0.15);
+  color: #a0b8a8;
+}
+.dark-mode .footer-social a:hover {
+  background: rgba(120, 140, 130, 0.3);
+  color: #e0ece0;
+}
+.footer-divider {
+  background: linear-gradient(to right, transparent, #d6c8bc, transparent);
+  height: 1px;
+  border: 0;
+}
+.dark-mode .footer-divider {
+  background: linear-gradient(to right, transparent, #3f554a, transparent);
+}
+  
+  
+  
+  </style>
+</head>
+<body id="appBody" class="bg-[#f8f2ea] text-[#2d2a24] transition-colors duration-700 min-h-screen flex flex-col">
+
+  <!-- Container utama -->
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-5 flex-1 w-full">
+
+    <!-- HEADER GRID: kiri countdown + kanan jam -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      <!-- Kiri: Countdown -->
+      <div class="glass-card rounded-2xl p-4 shadow-sm border border-white/20">
+        <div class="text-xs uppercase tracking-wider text-[#8b7a6a] dark:text-[#a0b8a8] font-medium flex items-center gap-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span> 
+          waktu berikutnya
+        </div>
+        <div id="countdownDisplay" class="text-3xl sm:text-4xl font-semibold tracking-tight mt-1 text-[#3d352c] dark:text-[#e8efe8]">
+          00:00:00
+        </div>
+        <div id="nextEventLabel" class="text-sm text-[#8f7a64] dark:text-[#b0c4b4] mt-1">—</div>
+      </div>
+      <!-- Kanan: Jam digital -->
+      <div class="glass-card rounded-2xl p-4 shadow-sm border border-white/20 flex items-center justify-between sm:justify-end gap-4">
+        <div class="text-xs uppercase tracking-wider text-[#8b7a6a] dark:text-[#a0b8a8] font-medium">Waktu saat ini</div>
+        <div id="digitalClock" class="text-4xl sm:text-5xl font-light tabular-nums text-[#3d352c] dark:text-[#e8efe8]">--:--:--</div>
+      </div>
+    </div>
+
+    <!-- KALENDER GANDA + ornamen -->
+    <div class="islamic-border rounded-3xl p-5 sm:p-7 mb-6 transition-colors duration-500">
+      <div class="flex flex-col md:flex-row md:justify-between gap-4">
+        <!-- Masehi -->
+        <div class="flex-1">
+          <div class="text-xs font-medium text-[#a78870] dark:text-[#8baa92] tracking-wider">MASEHI</div>
+          <div id="masehiDate" class="text-2xl font-semibold mt-1 text-[#3d352c] dark:text-[#e0ece0]">Senin, 1 Jan 2026</div>
+        </div>
+        <!-- Hijriah -->
+        <div class="flex-1">
+          <div class="text-xs font-medium text-[#a78870] dark:text-[#8baa92] tracking-wider">HIJRIAH</div>
+          <div id="hijriDate" class="text-2xl font-semibold mt-1 text-[#3d352c] dark:text-[#e0ece0]">1 Muharram 1447</div>
+          <div id="hijriMonthName" class="text-sm text-[#a78870] dark:text-[#a0c0a8]">المحرّم</div>
+        </div>
+      </div>
+      <!-- daftar bulan hijriah (ornamen) -->
+      <div class="flex flex-wrap gap-x-3 gap-y-1 mt-4 pt-3 border-t border-[#e5d8cc] dark:border-[#3d554a] text-xs text-[#7a6b5e] dark:text-[#b0c8b8]">
+        <span class="hijri-month">Muharram (المحرّم)</span>
+        <span class="hijri-month">Safar (صفر)</span>
+        <span class="hijri-month">Rabiul Awal (ربيع الأول)</span>
+        <span class="hijri-month">Rabiul Akhir (ربيع الآخر)</span>
+        <span class="hijri-month">Jumadil Awal (جمادى الأول)</span>
+        <span class="hijri-month">Jumadil Akhir (جمادى الآخر)</span>
+        <span class="hijri-month">Rajab (رجب)</span>
+        <span class="hijri-month">Sya'ban (شعبان)</span>
+        <span class="hijri-month">Ramadhan (رمضان)</span>
+        <span class="hijri-month">Syawal (شوّال)</span>
+        <span class="hijri-month">Dzulqa'dah (ذو القعدة)</span>
+        <span class="hijri-month">Dzulhijjah (ذو الحجة)</span>
+      </div>
+    </div>
+
+    <!-- KONTROL WAKTU SHALAT + LOKASI + AUDIO -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- Kota & koordinat -->
+      <div class="glass-card rounded-2xl p-4">
+        <div class="text-xs uppercase tracking-wider text-[#8b7a6a] dark:text-[#a0b8a8]">Lokasi</div>
+        <div id="cityName" class="text-lg font-medium text-[#3d352c] dark:text-[#e0ece0]">Menentukan...</div>
+        <div id="coordsDisplay" class="text-xs text-[#8f7a64] dark:text-[#a0b8a8] mt-0.5">lat, lng</div>
+        <select id="cityDropdown" class="mt-2 w-full bg-white/60 dark:bg-[#2a3a33] dark:text-[#e0ece0] border border-[#d6c8bc] dark:border-[#4a6154] rounded-xl px-3 py-2 text-sm outline-none transition">
+          <option value="auto">📍 Gunakan lokasi saya</option>
+          <option value="Jakarta">Jakarta</option>
+          <option value="Bandung">Bandung</option>
+          <option value="Surabaya">Surabaya</option>
+          <option value="Medan">Medan</option>
+          <option value="Makassar">Makassar</option>
+          <option value="Yogyakarta">Yogyakarta</option>
+        </select>
+      </div>
+      <!-- Info shalat & audio -->
+      <div class="glass-card rounded-2xl p-4 md:col-span-2">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <div class="text-xs uppercase tracking-wider text-[#8b7a6a] dark:text-[#a0b8a8]">Waktu Shalat & Imsak</div>
+          <div class="flex gap-2">
+            <button id="testAudioBtn" class="bg-[#d9cdc0] dark:bg-[#3b5548] text-[#2d2a24] dark:text-[#e0ece0] px-4 py-1.5 rounded-full text-sm font-medium hover:bg-[#cbbdb0] dark:hover:bg-[#4d6b5a] transition">🔊 Tes Audio</button>
+            <button id="muteToggleBtn" class="bg-[#d9cdc0] dark:bg-[#3b5548] text-[#2d2a24] dark:text-[#e0ece0] px-4 py-1.5 rounded-full text-sm font-medium hover:bg-[#cbbdb0] dark:hover:bg-[#4d6b5a] transition">🔇 Mute</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3 text-sm">
+          <div><span class="text-[#8f7a64] dark:text-[#a0b8a8]">Imsak</span><br><span id="imsakTime" class="font-medium text-[#3d352c] dark:text-[#e0ece0]">--:--</span></div>
+          <div><span class="text-[#8f7a64] dark:text-[#a0b8a8]">Subuh</span><br><span id="subuhTime" class="font-medium text-[#3d352c] dark:text-[#e0ece0]">--:--</span></div>
+          <div><span class="text-[#8f7a64] dark:text-[#a0b8a8]">Dzuhur</span><br><span id="dzuhurTime" class="font-medium text-[#3d352c] dark:text-[#e0ece0]">--:--</span></div>
+          <div><span class="text-[#8f7a64] dark:text-[#a0b8a8]">Ashar</span><br><span id="asharTime" class="font-medium text-[#3d352c] dark:text-[#e0ece0]">--:--</span></div>
+          <div><span class="text-[#8f7a64] dark:text-[#a0b8a8]">Maghrib</span><br><span id="maghribTime" class="font-medium text-[#3d352c] dark:text-[#e0ece0]">--:--</span></div>
+          <div class="col-span-3 sm:col-span-5"><span class="text-[#8f7a64] dark:text-[#a0b8a8]">Isya</span><br><span id="isyaTime" class="font-medium text-[#3d352c] dark:text-[#e0ece0]">--:--</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER PREMIUM dengan Sosial Media & Sumber API -->
+<footer class="mt-6 pt-4">
+  <!-- Divider elegan -->
+  <hr class="footer-divider mb-4" />
+  
+  <div class="text-center text-xs text-[#a28d7a] dark:text-[#7e9a88]">
+    <!-- Baris 1: Nama Pembuat & Kolaborator -->
+    <div class="flex flex-wrap items-center justify-center gap-1.5 mb-2">
+      <span>Dibuat bersama oleh</span>
+      <span class="font-semibold text-[#3d2c1e] dark:text-[#d0e0d0]">Andrew CS77</span>
+      <span class="text-[#b8a392] dark:text-[#5f7a6b]">|</span>
+      <span class="flex items-center gap-1.5">
+        <span class="text-base">🐋</span>
+        <span class="font-medium text-[#4d6b5a] dark:text-[#8fb09a]">DeepSeek (AI)</span>
+      </span>
+    </div>
+
+    <!-- Baris 2: Sumber API -->
+    <div class="text-[10px] text-[#b8a392] dark:text-[#5f7a6b] mb-2">
+      Sumber data waktu shalat: 
+      <a href="https://aladhan.com" target="_blank" rel="noopener noreferrer" 
+         class="text-[#4d6b5a] dark:text-[#8fb09a] hover:underline font-medium">
+        Aladhan.com
+      </a>
+      <!-- API Gratis untuk umat Islam -->
+    </div>
+
+    <!-- Baris 3: Sosial Media -->
+    <div class="flex items-center justify-center gap-3 footer-social mb-2">
+      <!-- Instagram -->
+      <a href="https://www.instagram.com/yudi_cah_sragen_77/" target="_blank" 
+         rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+        </svg>
+      </a>
+
+      <!-- Facebook -->
+      <a href="https://web.facebook.com/ydwiranto/" target="_blank" 
+         rel="noopener noreferrer" aria-label="Facebook" title="Facebook">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+      </a>
+
+      <!-- LinkedIn -->
+        <a href="https://www.linkedin.com/in/yudi-dwiranto-cs77/" target="_blank" 
+         rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Baris 4: Hak Cipta -->
+      <div class="text-[10px] text-[#b8a392] dark:text-[#5f7a6b]">
+      © 2026 Hak Cipta Dilindungi Undang-Undang
+    </div>
+  </div>
+</footer>
+
+  <!-- Floating WA -->
+  <div class="wa-group fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div class="tooltip-wa bg-[#1f2e28] dark:bg-[#d4e0d4] text-white dark:text-[#1f2e28] text-xs px-3 py-1 rounded-full mb-2 shadow-lg">Tertarik Bekerjasama?</div>
+    <a href="#" class="wa-pulse bg-green-500 hover:bg-green-600 w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition">
+      <span class="text-3xl text-white">💬</span>
+    </a>
+  </div>
+
+  <!-- AUDIO (hidden) -->
+  <audio id="adzanAudio" preload="auto">
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script>
+    (function() {
+      "use strict";
+
+      // ---------- DOM refs ----------
+      const countdownEl = document.getElementById('countdownDisplay');
+      const nextLabel = document.getElementById('nextEventLabel');
+      const clockEl = document.getElementById('digitalClock');
+      const masehiEl = document.getElementById('masehiDate');
+      const hijriEl = document.getElementById('hijriDate');
+      const hijriMonthName = document.getElementById('hijriMonthName');
+      const cityNameEl = document.getElementById('cityName');
+      const coordsEl = document.getElementById('coordsDisplay');
+      const cityDropdown = document.getElementById('cityDropdown');
+
+      const imsakEl = document.getElementById('imsakTime');
+      const subuhEl = document.getElementById('subuhTime');
+      const dzuhurEl = document.getElementById('dzuhurTime');
+      const asharEl = document.getElementById('asharTime');
+      const maghribEl = document.getElementById('maghribTime');
+      const isyaEl = document.getElementById('isyaTime');
+
+      const testBtn = document.getElementById('testAudioBtn');
+      const muteBtn = document.getElementById('muteToggleBtn');
+      const audio = document.getElementById('adzanAudio');
+
+      // ---------- state ----------
+      let isMuted = false;
+      let currentCoords = { lat: -6.2, lng: 106.8 }; // default Jakarta
+      let currentCity = 'Jakarta';
+      let prayerTimes = {};
+      let nextEvent = { name: '--', time: new Date() };
+      let countdownInterval = null;
+      let clockInterval = null;
+      let darkModeObserver = null;
+
+      // ---------- helper: city coords (approx) ----------
+      const cityMap = {
+        'Jakarta': { lat: -6.2088, lng: 106.8456 },
+        'Bandung': { lat: -6.9175, lng: 107.6191 },
+        'Surabaya': { lat: -7.2575, lng: 112.7521 },
+        'Medan': { lat: 3.5952, lng: 98.6722 },
+        'Makassar': { lat: -5.1477, lng: 119.4327 },
+        'Yogyakarta': { lat: -7.7956, lng: 110.3695 },
+      };
+
+      // ---------- hijri months ----------
+      const hijriMonths = [
+        'Muharram (المحرّم)','Safar (صفر)','Rabiul Awal (ربيع الأول)',
+        'Rabiul Akhir (ربيع الآخر)','Jumadil Awal (جمادى الأول)',
+        'Jumadil Akhir (جمادى الآخر)','Rajab (رجب)',
+        'Sya\'ban (شعبان)','Ramadhan (رمضان)',
+        'Syawal (شوّال)','Dzulqa\'dah (ذو القعدة)',
+        'Dzulhijjah (ذو الحجة)'
+      ];
+
+      // ---------- fetch prayer times from api.aladhan.com ----------
+      async function fetchPrayerTimes(lat, lng, cityName) {
+        try {
+          const date = new Date();
+          const day = String(date.getDate()).padStart(2,'0');
+          const month = String(date.getMonth()+1).padStart(2,'0');
+          const year = date.getFullYear();
+          const url = `https://api.aladhan.com/v1/timings/${day}-${month}-${year}?latitude=${lat}&longitude=${lng}&method=2`;
+          const resp = await fetch(url);
+          if (!resp.ok) throw new Error('API respon gagal');
+          const data = await resp.json();
+          const timings = data.data.timings;
+          // simpan
+          prayerTimes = {
+            imsak: timings.Imsak || '--:--',
+            subuh: timings.Fajr || '--:--',
+            dzuhur: timings.Dhuhr || '--:--',
+            ashar: timings.Asr || '--:--',
+            maghrib: timings.Maghrib || '--:--',
+            isya: timings.Isha || '--:--',
+          };
+          // update UI
+          imsakEl.textContent = prayerTimes.imsak;
+          subuhEl.textContent = prayerTimes.subuh;
+          dzuhurEl.textContent = prayerTimes.dzuhur;
+          asharEl.textContent = prayerTimes.ashar;
+          maghribEl.textContent = prayerTimes.maghrib;
+          isyaEl.textContent = prayerTimes.isya;
+
+          // update hijri & masehi
+          const hijri = data.data.date.hijri;
+          if (hijri) {
+            const dayH = hijri.day;
+            const monthH = hijri.month.en;
+            const yearH = hijri.year;
+            hijriEl.textContent = `${dayH} ${monthH} ${yearH}`;
+            const idx = parseInt(hijri.month.number) - 1;
+            hijriMonthName.textContent = hijriMonths[idx] || hijri.month.en;
+          }
+          // update masehi
+          const greg = data.data.date.gregorian;
+          if (greg) {
+            masehiEl.textContent = `${greg.weekday.en}, ${greg.day} ${greg.month.en} ${greg.year}`;
+          }
+
+          // hitung next event
+          updateNextEvent();
+          // update countdown
+          startCountdown();
+          // dark mode check
+          applyDarkModeByTime();
+        } catch (e) {
+          console.warn('Gagal fetch jadwal shalat, pakai fallback', e);
+          // fallback dummy
+          prayerTimes = { imsak:'04:20', subuh:'04:35', dzuhur:'12:00', ashar:'15:15', maghrib:'17:58', isya:'19:10' };
+          imsakEl.textContent = prayerTimes.imsak;
+          subuhEl.textContent = prayerTimes.subuh;
+          dzuhurEl.textContent = prayerTimes.dzuhur;
+          asharEl.textContent = prayerTimes.ashar;
+          maghribEl.textContent = prayerTimes.maghrib;
+          isyaEl.textContent = prayerTimes.isya;
+          updateNextEvent();
+          startCountdown();
+        }
+      }
+
+      // ---------- update next event (imsak, subuh, maghrib dll) ----------
+      function updateNextEvent() {
+        if (!prayerTimes.imsak) return;
+        const now = new Date();
+        const todayStr = now.toDateString();
+        const times = [
+          { name: 'Imsak', t: prayerTimes.imsak },
+          { name: 'Subuh', t: prayerTimes.subuh },
+          { name: 'Dzuhur', t: prayerTimes.dzuhur },
+          { name: 'Ashar', t: prayerTimes.ashar },
+          { name: 'Maghrib', t: prayerTimes.maghrib },
+          { name: 'Isya', t: prayerTimes.isya },
+        ];
+        let next = null;
+        for (let item of times) {
+          const [h, m] = item.t.split(':').map(Number);
+          const d = new Date(now);
+          d.setHours(h, m, 0, 0);
+          if (d > now) { next = { name: item.name, time: d }; break; }
+        }
+        if (!next) {
+          // ambil subuh besok
+          const [h, m] = times[0].t.split(':').map(Number);
+          const d = new Date(now);
+          d.setDate(d.getDate()+1);
+          d.setHours(h, m, 0, 0);
+          next = { name: 'Imsak (besok)', time: d };
+        }
+        nextEvent = next;
+        nextLabel.textContent = `${next.name} · ${next.time.toLocaleTimeString('id', {hour:'2-digit',minute:'2-digit'})}`;
+        return next;
+      }
+
+      // ---------- countdown ----------
+      function startCountdown() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+          const now = new Date();
+          if (!nextEvent.time) return;
+          const diff = Math.max(0, Math.floor((nextEvent.time - now) / 1000));
+          const hrs = String(Math.floor(diff / 3600)).padStart(2,'0');
+          const mins = String(Math.floor((diff % 3600) / 60)).padStart(2,'0');
+          const secs = String(diff % 60).padStart(2,'0');
+          countdownEl.textContent = `${hrs}:${mins}:${secs}`;
+          if (diff <= 0) {
+            // play adzan & update next
+            if (!isMuted) {
+              audio.play().catch(() => {});
+            }
+            updateNextEvent();
+          }
+        }, 500);
+      }
+
+      // ---------- jam digital ----------
+      function updateClock() {
+        const now = new Date();
+        clockEl.textContent = now.toLocaleTimeString('id', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      }
+      if (clockInterval) clearInterval(clockInterval);
+      clockInterval = setInterval(updateClock, 1000);
+      updateClock();
+
+      // ---------- dark mode by time (maghrib 18:00 - subuh 05:00) ----------
+      function applyDarkModeByTime() {
+        const now = new Date();
+        const hours = now.getHours();
+        const isNight = (hours >= 18 || hours < 5);
+        const body = document.getElementById('appBody');
+        if (isNight) {
+          body.classList.add('dark-mode');
+          body.classList.remove('bg-[#f8f2ea]');
+          body.classList.add('bg-[#1f2a26]', 'text-[#e0ece0]');
+        } else {
+          body.classList.remove('dark-mode');
+          body.classList.remove('bg-[#1f2a26]', 'text-[#e0ece0]');
+          body.classList.add('bg-[#f8f2ea]', 'text-[#2d2a24]');
+        }
+      }
+
+      // ---------- geolocation + dropdown ----------
+      function getLocationAndFetch() {
+        if (cityDropdown.value === 'auto') {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                const { latitude, longitude } = pos.coords;
+                currentCoords = { lat: latitude, lng: longitude };
+                coordsEl.textContent = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                cityNameEl.textContent = '📍 Lokasi Anda';
+                fetchPrayerTimes(latitude, longitude, 'Lokasi Anda');
+              },
+              () => {
+                // fallback ke Jakarta
+                const def = cityMap['Jakarta'];
+                currentCoords = def;
+                coordsEl.textContent = `${def.lat}, ${def.lng}`;
+                cityNameEl.textContent = 'Jakarta (fallback)';
+                fetchPrayerTimes(def.lat, def.lng, 'Jakarta');
+              }
+            );
+          } else {
+            const def = cityMap['Jakarta'];
+            currentCoords = def;
+            coordsEl.textContent = `${def.lat}, ${def.lng}`;
+            cityNameEl.textContent = 'Jakarta (default)';
+            fetchPrayerTimes(def.lat, def.lng, 'Jakarta');
+          }
+        } else {
+          const city = cityDropdown.value;
+          const coords = cityMap[city];
+          if (coords) {
+            currentCoords = coords;
+            coordsEl.textContent = `${coords.lat}, ${coords.lng}`;
+            cityNameEl.textContent = city;
+            fetchPrayerTimes(coords.lat, coords.lng, city);
+          }
+        }
+      }
+
+      // ---------- event listeners ----------
+      cityDropdown.addEventListener('change', getLocationAndFetch);
+
+      testBtn.addEventListener('click', () => {
+        if (!isMuted) audio.play().catch(() => {});
+      });
+
+      muteBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        muteBtn.textContent = isMuted ? '🔊 Unmute' : '🔇 Mute';
+        audio.muted = isMuted;
+      });
+
+      // init
+      getLocationAndFetch();
+
+      // Dark mode check setiap 10 menit
+      setInterval(applyDarkModeByTime, 600000);
+      // juga tiap jam
+      setInterval(() => {
+        updateNextEvent();
+      }, 60000);
+
+      // WA tooltip
+      document.querySelector('.wa-group')?.addEventListener('mouseenter', function() {
+        this.querySelector('.tooltip-wa').style.visibility = 'visible';
+        this.querySelector('.tooltip-wa').style.opacity = '1';
+      });
+      document.querySelector('.wa-group')?.addEventListener('mouseleave', function() {
+        this.querySelector('.tooltip-wa').style.visibility = 'hidden';
+        this.querySelector('.tooltip-wa').style.opacity = '0';
+      });
+
+    })();
+  </script>
+</body>
+</html>
