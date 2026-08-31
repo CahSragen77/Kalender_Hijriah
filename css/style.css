@@ -98,39 +98,27 @@
     ::-webkit-scrollbar-thumb { background: #b8a392; border-radius: 12px; }
     .dark-mode ::-webkit-scrollbar-track { background: #2a3330; }
     .dark-mode ::-webkit-scrollbar-thumb { background: #5f7a6b; }
-  
-  /* Footer Sosial Media */
-.footer-social a {
+
+    /* Tab Doa & Nasihat */
+.tab-btn {
   transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(180, 150, 120, 0.1);
-  color: #8b7a6a;
-  text-decoration: none;
-  font-size: 16px;
 }
-.footer-social a:hover {
-  transform: translateY(-2px);
-  background: rgba(180, 150, 120, 0.2);
-  color: #3d352c;
+.active-tab {
+  background: #d9cdc0 !important;
+  color: #2d2a24 !important;
 }
-.dark-mode .footer-social a {
-  background: rgba(120, 140, 130, 0.15);
-  color: #a0b8a8;
+.dark-mode .active-tab {
+  background: #3b5548 !important;
+  color: #e0ece0 !important;
 }
-.dark-mode .footer-social a:hover {
-  background: rgba(120, 140, 130, 0.3);
-  color: #e0ece0;
+/* Font Arabic */
+.font-arabic {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+  font-weight: 400;
 }
-.footer-divider {
-  background: linear-gradient(to right, transparent, #d6c8bc, transparent);
-  height: 1px;
-  border: 0;
-}
-.dark-mode .footer-divider {
-  background: linear-gradient(to right, transparent, #3f554a, transparent);
+/* Responsif */
+@media (max-width: 480px) {
+  .font-arabic {
+    font-size: 1rem !important;
+  }
 }
