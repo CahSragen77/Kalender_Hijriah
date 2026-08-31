@@ -272,4 +272,268 @@
         this.querySelector('.tooltip-wa').style.opacity = '0';
       });
 
+      // ---------- FITUR IMSAKIYAH & PUASA ----------
+const puasaModeSelect = document.getElementById('puasaMode');
+const puasaStatus = document.getElementById('puasaStatus');
+const puasaMessage = document.getElementById('puasaMessage');
+const imsakAudio = document.getElementById('imsakAudio');
+const bukaAudio = document.getElementById('bukaAudio');
+let imsakTriggered = false;  // flag agar alarm tidak berulang
+let bukaTriggered = false;
+
+// Fungsi untuk cek apakah hari ini Senin (1) atau Kamis (5)
+function isSeninKamis() {
+  const day = new Date().getDay();
+  return (day === 1 || day === 5);
+}
+
+// Fungsi untuk cek apakah bulan Hijriah = Ramadhan
+// (kita ambil dari data hijri yang sudah ada di prayerTimes)
+function isRamadhan() {
+  // Ambil nama bulan dari elemen hijriMonthName (sudah ada)
+  const monthName = document.getElementById('hijriMonthName').textContent;
+  return monthName.includes('Ramadhan');
+}
+
+
+// Fungsi untuk memperbarui status puasa
+function updatePuasaStatus() {
+  const mode = puasaModeSelect.value;
+  let status = 'Tidak aktif';
+  let message = '';
+
+  if (mode === 'senin-kamis') {
+    if (isSeninKamis()) {
+      status = '✅ Hari ini Senin/Kamis - Puasa Sunnah';
+      message = 'Alarm imsak dan buka akan aktif.';
+    } else {
+      status = '⏳ Hari ini bukan Senin/Kamis';
+      message = 'Tidak ada alarm puasa.';
+    }
+  } else if (mode === 'ramadhan') {
+    if (isRamadhan()) {
+      status = '✅ Bulan Ramadhan - Puasa Wajib';
+      message = 'Alarm imsak dan buka akan aktif.';
+    } else {
+      status = '⏳ Saat ini bukan Ramadhan';
+      message = 'Tidak ada alarm puasa.';
+    }
+  }
+
+  puasaStatus.textContent = 'Status: ' + status;
+  // Cek apakah elemen puasaMessage ada sebelum diisi
+  if (puasaMessage) {
+    puasaMessage.textContent = message;
+  }
+  return (mode !== 'none' && (status.includes('✅')));
+}
+
+
+// Panggil saat mode berubah
+puasaModeSelect.addEventListener('change', () => {
+  updatePuasaStatus();
+  // Reset flag agar alarm bisa berbunyi lagi setelah ganti mode
+  imsakTriggered = false;
+  bukaTriggered = false;
+});
+
+// Fungsi untuk memainkan alarm imsak
+function playImsakAlarm() {
+  if (!puasaModeSelect.value || puasaModeSelect.value === 'none') return;
+  if (imsakTriggered) return;
+  imsakTriggered = true;
+  // Mainkan suara
+  imsakAudio.play().catch(() => {});
+  // Tampilkan notifikasi browser
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('🌙 Waktu Imsak!', {
+      body: 'Segera hentikan makan dan minum. Waktu Subuh akan tiba.',
+      icon: 'https://cdn-icons-png.flaticon.com/512/3183/3183468.png'
+    });
+  } else if ('Notification' in window && Notification.permission !== 'denied') {
+    Notification.requestPermission();
+  }
+  // Tampilkan alert jika notifikasi tidak didukung
+  if (!('Notification' in window)) {
+    alert('🌙 Waktu Imsak! Segera hentikan makan dan minum.');
+  }
+}
+
+function playBukaAlarm() {
+  if (!puasaModeSelect.value || puasaModeSelect.value === 'none') return;
+  if (bukaTriggered) return;
+  bukaTriggered = true;
+  bukaAudio.play().catch(() => {});
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('🍲 Waktu Berbuka Puasa!', {
+      body: 'Selamat berbuka puasa, semoga berkah.',
+      icon: 'https://cdn-icons-png.flaticon.com/512/3176/3176366.png'
+    });
+  } else if ('Notification' in window && Notification.permission !== 'denied') {
+    Notification.requestPermission();
+  }
+  if (!('Notification' in window)) {
+    alert('🍲 Waktu Berbuka Puasa! Selamat berbuka.');
+  }
+}
+
+// Uji alarm
+document.getElementById('testImsakAlarm').addEventListener('click', () => {
+  playImsakAlarm();
+});
+document.getElementById('testBukaAlarm').addEventListener('click', () => {
+  playBukaAlarm();
+});
+
+// Integrasikan dengan countdown: cek setiap detik apakah waktu imsak atau maghrib tercapai
+// Kita modifikasi fungsi startCountdown yang sudah ada agar mengecek juga
+// Karena kita tidak mau mengubah fungsi asli, kita tambahkan interval terpisah untuk pengecekan alarm
+setInterval(() => {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+
+  // Ambil waktu imsak dan maghrib dari data prayerTimes (sudah ada)
+  if (prayerTimes.imsak && prayerTimes.maghrib) {
+    const [imsakH, imsakM] = prayerTimes.imsak.split(':').map(Number);
+    const [maghribH, maghribM] = prayerTimes.maghrib.split(':').map(Number);
+
+    // Cek apakah mode aktif dan kondisi puasa terpenuhi
+    const mode = puasaModeSelect.value;
+    let isPuasaToday = false;
+    if (mode === 'senin-kamis') isPuasaToday = isSeninKamis();
+    else if (mode === 'ramadhan') isPuasaToday = isRamadhan();
+
+    if (mode !== 'none' && isPuasaToday) {
+      // Alarm imsak: tepat pada jam:menit:detik 0
+      if (hours === imsakH && minutes === imsakM && seconds === 0) {
+        playImsakAlarm();
+      }
+      // Alarm buka: tepat pada jam:menit:detik 0
+      if (hours === maghribH && minutes === maghribM && seconds === 0) {
+        playBukaAlarm();
+      }
+    } else {
+      // Jika mode tidak aktif, reset flag agar alarm bisa aktif lagi nanti
+      imsakTriggered = false;
+      bukaTriggered = false;
+    }
+  }
+}, 1000); // cek tiap detik
+
+// Panggil update status saat pertama kali
+updatePuasaStatus();
+
+// Minta izin notifikasi di awal
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+// ---------- DOA & NASIHAT ----------
+const doaTabBtn = document.getElementById('doaTabBtn');
+const nasihatTabBtn = document.getElementById('nasihatTabBtn');
+const doaContent = document.getElementById('doaContent');
+const nasihatContent = document.getElementById('nasihatContent');
+const nasihatText = document.getElementById('nasihatText');
+const nasihatSumber = document.getElementById('nasihatSumber');
+const nasihatRefreshBtn = document.getElementById('nasihatRefreshBtn');
+
+// Kumpulan nasihat (Al-Qur'an + tokoh dunia)
+const nasihatList = [
+  { 
+    text: "Dan carilah pada apa yang telah dianugerahkan Allah kepadamu (kebahagiaan) negeri akhirat, dan janganlah kamu melupakan bagianmu dari (kenikmatan) duniawi.",
+    source: "Q.S. Al-Qashash 28:77"
+  },
+  {
+    text: "Sesungguhnya bersama kesulitan ada kemudahan. Maka apabila engkau telah selesai (dari sesuatu urusan), tetaplah bekerja keras (untuk urusan yang lain).",
+    source: "Q.S. Al-Insyirah 94:6-7"
+  },
+  {
+    text: "Dan bersabarlah, sesungguhnya Allah beserta orang-orang yang sabar.",
+    source: "Q.S. Al-Anfal 8:46"
+  },
+  {
+    text: "Kebaikan bukanlah dengan banyaknya harta, tetapi kebaikan adalah dengan banyaknya amal dan kebijaksanaan.",
+    source: "— Imam Ali bin Abi Thalib"
+  },
+  {
+    text: "Puasa adalah perisai dari api neraka, seperti perisai kalian dalam peperangan.",
+    source: "— HR. Ahmad (Hadits)"
+  },
+  {
+    text: "Siapa yang tidak bersyukur kepada manusia, dia tidak bersyukur kepada Allah.",
+    source: "— HR. Tirmidzi"
+  },
+  {
+    text: "Kebahagiaan sejati adalah ketika Anda berbuat baik kepada orang lain tanpa mengharapkan imbalan.",
+    source: "— Dalai Lama"
+  },
+  {
+    text: "Lebih baik menjadi cahaya bagi orang lain daripada hanya mengutuk kegelapan.",
+    source: "— Eleanor Roosevelt"
+  },
+  {
+    text: "Jangan menilai orang dari kekayaannya, tapi dari kebaikan hatinya.",
+    source: "— Confucius"
+  },
+  {
+    text: "Kebaikan adalah bahasa yang dapat didengar oleh orang tuli dan dilihat oleh orang buta.",
+    source: "— Mark Twain"
+  }
+];
+
+let currentNasihatIndex = 0;
+
+function tampilkanNasihat(index) {
+  const n = nasihatList[index % nasihatList.length];
+  nasihatText.textContent = n.text;
+  nasihatSumber.textContent = '— ' + n.source;
+}
+
+function nasihatAcak() {
+  const random = Math.floor(Math.random() * nasihatList.length);
+  currentNasihatIndex = random;
+  tampilkanNasihat(random);
+}
+
+// Tab switching
+doaTabBtn.addEventListener('click', () => {
+  doaContent.classList.remove('hidden');
+  nasihatContent.classList.add('hidden');
+  doaTabBtn.classList.add('active-tab');
+  nasihatTabBtn.classList.remove('active-tab');
+});
+
+nasihatTabBtn.addEventListener('click', () => {
+  nasihatContent.classList.remove('hidden');
+  doaContent.classList.add('hidden');
+  nasihatTabBtn.classList.add('active-tab');
+  doaTabBtn.classList.remove('active-tab');
+  // Tampilkan nasihat pertama kali jika belum ada
+  if (nasihatText.textContent === '') {
+    nasihatAcak();
+  }
+});
+
+nasihatRefreshBtn.addEventListener('click', nasihatAcak);
+
+// Tampilkan nasihat acak saat pertama kali halaman dimuat (jika tab nasihat aktif)
+window.addEventListener('load', () => {
+  // Default tab Doa, jadi nasihat belum tampil. Tapi kita siapkan data.
+  nasihatAcak();
+});
+
+// ---- Tambahkan juga notifikasi untuk doa berbuka di integrasi alarm (opsional) ----
+// Bisa ditambahkan di dalam fungsi playBukaAlarm() untuk menampilkan doa berbuka saat alarm
+// Misalnya, tambahkan di playBukaAlarm():
+/*
+  // Tampilkan doa berbuka di notifikasi
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('🍲 Waktu Berbuka Puasa!', {
+      body: 'Doa berbuka: "Allāhumma laka ṣumtu wa bi rizqika afṭartu"',
+      icon: 'https://cdn-icons-png.flaticon.com/512/3176/3176366.png'
+    });
+  }
+*/
     })();
