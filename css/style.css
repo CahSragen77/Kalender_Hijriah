@@ -122,3 +122,36 @@
     font-size: 1rem !important;
   }
 }
+
+/* --- STYLE TOMBOL WHATSAPP MENGAMBANG --- */
+.wa-floating {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  bottom: 40px; /* Jarak dari bawah */
+  right: 40px;  /* Jarak dari kanan */
+  background-color: #25d366; /* Warna khas WhatsApp */
+  color: #fff;
+  border-radius: 50px;
+  text-align: center;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+/* Ukuran logo SVG di dalam lingkaran */
+.wa-floating svg {
+  width: 35px;
+  height: 35px;
+  fill: #fff;
+}
+
+/* Efek interaktif saat tombol didekati kursor */
+.wa-floating:hover {
+  transform: scale(1.1); /* Tombol sedikit membesar */
+  background-color: #20ba5a;
+  box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.4);
+}
