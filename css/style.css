@@ -123,35 +123,127 @@
   }
 }
 
-/* --- STYLE TOMBOL WHATSAPP MENGAMBANG --- */
+/* ===== FOOTER PREMIUM ===== */
+.footer-credit-section {
+  padding: 1.5rem 0 0.5rem 0;
+}
+
+.credit-divider {
+  border: none;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #d6c8bc, transparent);
+  margin-bottom: 1.2rem;
+  opacity: 0.6;
+}
+.dark-mode .credit-divider {
+  background: linear-gradient(to right, transparent, #3f554a, transparent);
+}
+
+.credit-text {
+  font-size: 0.75rem;
+  color: #a28d7a;
+  line-height: 1.8;
+}
+.dark-mode .credit-text {
+  color: #7e9a88;
+}
+
+.credit-text strong {
+  color: #3d2c1e;
+  font-weight: 600;
+}
+.dark-mode .credit-text strong {
+  color: #d0e0d0;
+}
+
+.social-link {
+  color: #8b7a6a;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  padding: 0 2px;
+}
+.social-link:hover {
+  color: #3d2c1e;
+  text-decoration: underline;
+}
+.dark-mode .social-link {
+  color: #a0b8a8;
+}
+.dark-mode .social-link:hover {
+  color: #e0ece0;
+}
+
+/* ===== LOGO PAUS GLOWING ===== */
+.whale-logo {
+  display: inline-block;
+  font-size: 1.2rem;
+  animation: whaleGlow 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(60, 120, 100, 0.3));
+}
+@keyframes whaleGlow {
+  0% { 
+    filter: drop-shadow(0 0 4px rgba(60, 120, 100, 0.2));
+    transform: scale(1);
+  }
+  50% { 
+    filter: drop-shadow(0 0 20px rgba(60, 200, 160, 0.8)) 
+            drop-shadow(0 0 40px rgba(60, 200, 160, 0.4));
+    transform: scale(1.08);
+  }
+  100% { 
+    filter: drop-shadow(0 0 4px rgba(60, 120, 100, 0.2));
+    transform: scale(1);
+  }
+}
+.dark-mode .whale-logo {
+  animation: whaleGlowDark 2.5s ease-in-out infinite;
+}
+@keyframes whaleGlowDark {
+  0% { 
+    filter: drop-shadow(0 0 4px rgba(80, 200, 160, 0.3));
+    transform: scale(1);
+  }
+  50% { 
+    filter: drop-shadow(0 0 25px rgba(80, 220, 180, 0.9)) 
+            drop-shadow(0 0 50px rgba(80, 220, 180, 0.5));
+    transform: scale(1.08);
+  }
+  100% { 
+    filter: drop-shadow(0 0 4px rgba(80, 200, 160, 0.3));
+    transform: scale(1);
+  }
+}
+
+/* ===== FLOATING WHATSAPP ===== */
 .wa-floating {
   position: fixed;
-  width: 60px;
-  height: 60px;
-  bottom: 40px; /* Jarak dari bawah */
-  right: 40px;  /* Jarak dari kanan */
-  background-color: #25d366; /* Warna khas WhatsApp */
-  color: #fff;
-  border-radius: 50px;
-  text-align: center;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
-  z-index: 100;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  background: #25D366;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
   transition: all 0.3s ease;
+  z-index: 999;
+  animation: waPulse 2.5s ease-in-out infinite;
+  text-decoration: none;
 }
-
-/* Ukuran logo SVG di dalam lingkaran */
-.wa-floating svg {
-  width: 35px;
-  height: 35px;
-  fill: #fff;
-}
-
-/* Efek interaktif saat tombol didekati kursor */
 .wa-floating:hover {
-  transform: scale(1.1); /* Tombol sedikit membesar */
-  background-color: #20ba5a;
-  box-shadow: 2px 5px 15px rgba(0, 0, 0, 0.4);
+  transform: scale(1.1) translateY(-3px);
+  box-shadow: 0 8px 30px rgba(37, 211, 102, 0.6);
+}
+.wa-floating svg {
+  width: 30px;
+  height: 30px;
+  fill: white;
+}
+@keyframes waPulse {
+  0% { box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4); }
+  50% { box-shadow: 0 4px 40px rgba(37, 211, 102, 0.7), 0 0 60px rgba(37, 211, 102, 0.2); }
+  100% { box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4); }
 }
