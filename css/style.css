@@ -247,3 +247,135 @@
   50% { box-shadow: 0 4px 40px rgba(37, 211, 102, 0.7), 0 0 60px rgba(37, 211, 102, 0.2); }
   100% { box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4); }
 }
+
+/* ===== FITUR BERBAGI & SILATURAHMI ===== */
+.share-card {
+  background: rgba(255, 245, 235, 0.5);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 1.5rem;
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+.dark-mode .share-card {
+  background: rgba(20, 30, 28, 0.6);
+  border-color: rgba(120, 140, 130, 0.15);
+}
+
+.share-tab-btn {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.share-tab-btn.active {
+  background: #d9cdc0 !important;
+  color: #2d2a24 !important;
+}
+.dark-mode .share-tab-btn.active {
+  background: #3b5548 !important;
+  color: #e0ece0 !important;
+}
+
+/* Feed */
+.feed-item {
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 1rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(210, 195, 180, 0.4);
+  transition: all 0.2s ease;
+}
+.feed-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+.dark-mode .feed-item {
+  background: rgba(40, 55, 48, 0.5);
+  border-color: rgba(100, 130, 110, 0.2);
+}
+.feed-item img, .feed-item video {
+  border-radius: 0.75rem;
+  max-height: 220px;
+  width: auto;
+  max-width: 100%;
+  object-fit: cover;
+  margin-top: 0.5rem;
+}
+.feed-meta {
+  font-size: 0.65rem;
+  color: #b8a392;
+}
+.dark-mode .feed-meta {
+  color: #6a8f7a;
+}
+
+/* Form upload */
+.share-input {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid #d6c8bc;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  width: 100%;
+  outline: none;
+  transition: border 0.2s;
+}
+.dark-mode .share-input {
+  background: rgba(40, 55, 48, 0.8);
+  border-color: #4a6154;
+  color: #e0ece0;
+}
+.share-input:focus {
+  border-color: #8b7a6a;
+}
+
+/* Sedekah button */
+.donate-btn {
+  background: linear-gradient(135deg, #4d6b5a, #3b5548);
+  color: white;
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+}
+.donate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(60, 120, 100, 0.35);
+}
+
+/* Playlist lagu */
+.song-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(210, 195, 180, 0.3);
+  font-size: 0.85rem;
+}
+.dark-mode .song-item {
+  border-color: rgba(100, 130, 110, 0.2);
+}
+.song-item:last-child {
+  border-bottom: none;
+}
+.song-link {
+  color: #4d6b5a;
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 0.75rem;
+  transition: color 0.2s;
+}
+.song-link:hover {
+  color: #2d2a24;
+  text-decoration: underline;
+}
+.dark-mode .song-link {
+  color: #8fb09a;
+}
+.dark-mode .song-link:hover {
+  color: #e0ece0;
+}
