@@ -537,7 +537,7 @@ window.addEventListener('load', () => {
   }
 */
 
-            // ---------- FITUR BERBAGI & SILATURAHMI ----------
+            // ---------- FITUR BERBAGI & SILATURAHMI (FIREBASE) ----------
 const shareTabs = document.querySelectorAll('.share-tab-btn');
 const shareFeed = document.getElementById('shareFeed');
 const shareSedekah = document.getElementById('shareSedekah');
@@ -552,27 +552,26 @@ const feedList = document.getElementById('feedList');
 let selectedMediaFile = null;
 let selectedMediaType = null;
 let feedData = [];
+let fb = null;
 
-// Load feed dari localStorage
-function loadFeed() {
-  try {
-    const saved = localStorage.getItem('kalender_islami_feed');
-    if (saved) {
-      feedData = JSON.parse(saved);
-    }
-  } catch (e) {
-    feedData = [];
+// Tunggu Firebase siap (karena script module berjalan asinkron)
+const checkFirebase = setInterval(() => {
+  if (window.FirebaseApp) {
+    fb = window.FirebaseApp;
+    clearInterval(checkFirebase);
+    listenFeed(); // Mulai dengarkan database
   }
-  renderFeed();
-}
+}, 100);
 
-// Simpan feed ke localStorage
-function saveFeed() {
-  try {
-    localStorage.setItem('kalender_islami_feed', JSON.stringify(feedData));
-  } catch (e) {
-    console.warn('Gagal simpan feed', e);
-  }
+// Dengarkan Feed secara Real-time
+function listenFeed() {
+  if (!fb) return;
+  const q = fb.query(fb.collection(fb.db, "feed"), fb.orderBy("time", "desc"));
+  
+  fb.onSnapshot(q, (snapshot) => {
+    feedData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    renderFeed();
+  });
 }
 
 // Render daftar postingan
@@ -582,20 +581,25 @@ function renderFeed() {
     feedList.innerHTML = '<div class="text-xs text-[#b8a392] dark:text-[#5f7a6b] italic text-center py-4">Belum ada postingan. Jadilah yang pertama berbagi! 🌙</div>';
     return;
   }
-  feedList.innerHTML = feedData.map((item, idx) => `
+  
+  feedList.innerHTML = feedData.map((item) => {
+    // Cek apakah item.time ada (karena serverTimestamp butuh waktu sinkronisasi)
+    const timeStr = item.time ? new Date(item.time.toDate()).toLocaleString('id-ID') : 'Baru saja';
+    
+    return `
     <div class="feed-item">
       <div class="text-sm text-[#3d352c] dark:text-[#e0ece0]">${item.text || ''}</div>
       ${item.media ? (
         item.mediaType === 'image' 
-          ? `<img src="${item.media}" alt="Postingan" />` 
+          ? `<img src="${item.media}" alt="Postingan" loading="lazy" />` 
           : `<video src="${item.media}" controls></video>`
       ) : ''}
-      <div class="feed-meta mt-1">🕐 ${new Date(item.time).toLocaleString('id-ID')}</div>
+      <div class="feed-meta mt-1">🕐 ${timeStr}</div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
-// Tab switching
+// Tab switching (sama seperti sebelumnya)
 shareTabs.forEach(btn => {
   btn.addEventListener('click', () => {
     const target = btn.getAttribute('data-sharetarget');
@@ -619,44 +623,63 @@ postMedia.addEventListener('change', () => {
     postPreview.textContent = '';
     return;
   }
+  // Batas ukuran file (Opsional: 2MB untuk gambar, 5MB untuk video)
+  if (file.size > 5 * 1024 * 1024) {
+    alert('Ukuran file terlalu besar. Maksimal 5MB.');
+    postMedia.value = '';
+    return;
+  }
   selectedMediaFile = file;
   selectedMediaType = file.type.startsWith('image') ? 'image' : 'video';
-  postPreview.textContent = `📎 File dipilih: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+  postPreview.textContent = `📎 File dipilih: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
 });
 
-// Kirim postingan
-postSubmitBtn.addEventListener('click', () => {
+// Kirim postingan ke Firebase
+postSubmitBtn.addEventListener('click', async () => {
   const text = postText.value.trim();
   if (!text && !selectedMediaFile) {
     alert('Silakan tulis sesuatu atau pilih file terlebih dahulu.');
     return;
   }
+  if (!fb) {
+    alert('Koneksi ke database belum siap. Tunggu sebentar atau refresh halaman.');
+    return;
+  }
 
-  function savePost(mediaData) {
-    feedData.unshift({
+  postSubmitBtn.disabled = true;
+  postSubmitBtn.textContent = 'Mengirim...';
+
+  try {
+    let mediaUrl = null;
+    
+    // Upload file ke Cloud Storage jika ada
+    if (selectedMediaFile) {
+      const storageRef = fb.ref(fb.storage, `feed/${Date.now()}_${selectedMediaFile.name}`);
+      await fb.uploadBytes(storageRef, selectedMediaFile);
+      mediaUrl = await fb.getDownloadURL(storageRef);
+    }
+
+    // Simpan teks + URL ke Firestore
+    await fb.addDoc(fb.collection(fb.db, "feed"), {
       text: text,
-      media: mediaData,
+      media: mediaUrl,
       mediaType: selectedMediaType,
-      time: Date.now()
+      time: fb.serverTimestamp()
     });
-    saveFeed();
-    renderFeed();
+
+    // Reset form jika berhasil
     postText.value = '';
     postMedia.value = '';
     selectedMediaFile = null;
     selectedMediaType = null;
     postPreview.textContent = '';
-  }
-
-  if (selectedMediaFile) {
-    const reader = new FileReader();
-    reader.onload = (e) => savePost(e.target.result);
-    reader.readAsDataURL(selectedMediaFile);
-  } else {
-    savePost(null);
+    
+  } catch (error) {
+    console.error("Error posting:", error);
+    alert('Gagal mengirim postingan. Pastikan aturan database dan storage mengizinkan (Test Mode).');
+  } finally {
+    postSubmitBtn.disabled = false;
+    postSubmitBtn.textContent = 'Kirim';
   }
 });
-
-// Inisialisasi
-loadFeed();
     })();
