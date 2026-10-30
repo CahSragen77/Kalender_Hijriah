@@ -278,5 +278,32 @@
   <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg" />
 </audio>
 
+    <!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-storage.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA-6RKeMw1PFQMqWUT9k9MQDVt1oXEwkc",
+    authDomain: "kalender-islami.firebaseapp.com",
+    projectId: "kalender-islami",
+    storageBucket: "kalender-islami.firebasestorage.app",
+    messagingSenderId: "122865961030",
+    appId: "1:122865961030:web:9e036a116ee749e2c12247",
+    measurementId: "G-S5XZMYHX7"
+  };
+
+  // Inisialisasi Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  // Ekspos fungsi ke global window agar bisa dipakai oleh script utama Anda
+  window.FirebaseApp = {
+    db, storage, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, ref, uploadBytes, getDownloadURL
+  };
+</script>
+
 </body>
 </html>
