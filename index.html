@@ -167,6 +167,67 @@
   <div id="puasaMessage" class="text-xs text-[#b8a392] dark:text-[#5f7a6b] mt-1"></div>
 </div>
 
+      <!-- ===== FITUR BERBAGI & SILATURAHMI ===== -->
+<div class="share-card">
+  <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#e5d8cc] dark:border-[#3d554a] pb-2 mb-3">
+    <div class="text-xs uppercase tracking-wider text-[#8b7a6a] dark:text-[#a0b8a8]">💝 Berbagi & Silaturahmi</div>
+    <div class="flex gap-1.5">
+      <button data-sharetarget="feed" class="share-tab-btn active bg-[#e8ddd0] dark:bg-[#2f3f3a] text-[#8b7a6a] dark:text-[#a0b8a8] px-3 py-1 rounded-full text-[10px] font-medium">📸 Feed</button>
+      <button data-sharetarget="sedekah" class="share-tab-btn bg-[#e8ddd0] dark:bg-[#2f3f3a] text-[#8b7a6a] dark:text-[#a0b8a8] px-3 py-1 rounded-full text-[10px] font-medium">🤲 Sedekah</button>
+      <button data-sharetarget="lagu" class="share-tab-btn bg-[#e8ddd0] dark:bg-[#2f3f3a] text-[#8b7a6a] dark:text-[#a0b8a8] px-3 py-1 rounded-full text-[10px] font-medium">🎵 Lagu</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB FEED ===== -->
+  <div id="shareFeed" class="space-y-3">
+    <!-- Form posting -->
+    <div class="flex flex-col sm:flex-row gap-2">
+      <input type="text" id="postText" class="share-input" placeholder="Tulis ucapan, doa, atau cerita takjil..." />
+      <div class="flex gap-2">
+        <label class="cursor-pointer bg-[#d9cdc0] dark:bg-[#3b5548] text-[#2d2a24] dark:text-[#e0ece0] px-3 py-2 rounded-xl text-xs font-medium hover:bg-[#cbbdb0] dark:hover:bg-[#4d6b5a] transition flex items-center gap-1">
+          📷 Foto/Video
+          <input type="file" id="postMedia" accept="image/*,video/*" class="hidden" />
+        </label>
+        <button id="postSubmitBtn" class="bg-[#4d6b5a] text-white px-4 py-2 rounded-xl text-xs font-medium hover:bg-[#3b5548] transition">Kirim</button>
+      </div>
+    </div>
+    <div id="postPreview" class="text-xs text-[#b8a392] dark:text-[#5f7a6b]"></div>
+
+    <!-- Daftar postingan -->
+    <div id="feedList" class="max-h-72 overflow-y-auto pr-1">
+      <div class="text-xs text-[#b8a392] dark:text-[#5f7a6b] italic text-center py-4">Belum ada postingan. Jadilah yang pertama berbagi! 🌙</div>
+    </div>
+  </div>
+
+  <!-- ===== TAB SEDEKAH ===== -->
+  <div id="shareSedekah" class="hidden space-y-3">
+    <p class="text-xs text-[#8f7a64] dark:text-[#a0b8a8] leading-relaxed">
+      Salurkan sedekah, infaq, atau hadiah terbaik Anda. Setiap kebaikan akan kembali berlipat ganda. 🤲
+    </p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <a href="https://id.shp.ee/yudmwbm1?fromSource=whatsapp&smtt=0.0.3" target="_blank" class="donate-btn justify-center">🛍️ Shopee Hadiah</a>
+      <a href="https://wa.me/6281389188903?text=Assalamu.alaikum...%20Saya%20ingin%20bersedekah%20melalui%20web%20Kalender%20Islami." target="_blank" class="donate-btn justify-center">💬 Hubungi via WA</a>
+    </div>
+    <div class="text-[10px] text-[#b8a392] dark:text-[#5f7a6b] italic text-center">
+      *Setiap donasi akan disalurkan untuk kegiatan sosial dan keagamaan.
+    </div>
+  </div>
+
+  <!-- ===== TAB LAGU ROHANI ===== -->
+  <div id="shareLagu" class="hidden space-y-2">
+    <p class="text-xs text-[#8f7a64] dark:text-[#a0b8a8] mb-2">Dengarkan lagu-lagu rohani islami untuk menemani waktu berbuka dan sahur. 🎧</p>
+    <div class="max-h-60 overflow-y-auto pr-1 space-y-1">
+      <div class="song-item"><span>🎵 Sholawat Nabi - Maher Zain</span><a href="https://www.youtube.com/results?search_query=sholawat+nabi+maher+zein" target="_blank" class="song-link">▶ Putar</a></div>
+      <div class="song-item"><span>🎵 Ramadhan - Maher Zain</span><a href="https://www.youtube.com/results?search_query=ramadhan+maher+zein" target="_blank" class="song-link">▶ Putar</a></div>
+      <div class="song-item"><span>🎵 Ya Rasulullah - Sabyan</span><a href="https://www.youtube.com/results?search_query=ya+rasulullah+sabyan" target="_blank" class="song-link">▶ Putar</a></div>
+      <div class="song-item"><span>🎵 Assalamualaikum - Faouzia</span><a href="https://www.youtube.com/results?search_query=assalamualaikum+faouzia" target="_blank" class="song-link">▶ Putar</a></div>
+      <div class="song-item"><span>🎵 Bismillah - Maher Zain</span><a href="https://www.youtube.com/results?search_query=bismillah+maher+zein" target="_blank" class="song-link">▶ Putar</a></div>
+      <div class="song-item"><span>🎵 Sholawat Badar - Nissa Sabyan</span><a href="https://www.youtube.com/results?search_query=sholawat+badar+nissa+sabyan" target="_blank" class="song-link">▶ Putar</a></div>
+    </div>
+    <div class="text-[10px] text-[#b8a392] dark:text-[#5f7a6b] italic text-center mt-1">*Link akan membuka YouTube. Pastikan kuota dan waktu luang Anda.</div>
+  </div>
+</div>
+
     <!-- FOOTER PREMIUM dengan Sosial Media & Logo Paus Glowing -->
 <div class="footer-credit-section mt-4 text-center">
   <hr class="credit-divider">
