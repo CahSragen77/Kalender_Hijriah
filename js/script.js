@@ -536,4 +536,127 @@ window.addEventListener('load', () => {
     });
   }
 */
+
+            // ---------- FITUR BERBAGI & SILATURAHMI ----------
+const shareTabs = document.querySelectorAll('.share-tab-btn');
+const shareFeed = document.getElementById('shareFeed');
+const shareSedekah = document.getElementById('shareSedekah');
+const shareLagu = document.getElementById('shareLagu');
+
+const postText = document.getElementById('postText');
+const postMedia = document.getElementById('postMedia');
+const postSubmitBtn = document.getElementById('postSubmitBtn');
+const postPreview = document.getElementById('postPreview');
+const feedList = document.getElementById('feedList');
+
+let selectedMediaFile = null;
+let selectedMediaType = null;
+let feedData = [];
+
+// Load feed dari localStorage
+function loadFeed() {
+  try {
+    const saved = localStorage.getItem('kalender_islami_feed');
+    if (saved) {
+      feedData = JSON.parse(saved);
+    }
+  } catch (e) {
+    feedData = [];
+  }
+  renderFeed();
+}
+
+// Simpan feed ke localStorage
+function saveFeed() {
+  try {
+    localStorage.setItem('kalender_islami_feed', JSON.stringify(feedData));
+  } catch (e) {
+    console.warn('Gagal simpan feed', e);
+  }
+}
+
+// Render daftar postingan
+function renderFeed() {
+  if (!feedList) return;
+  if (feedData.length === 0) {
+    feedList.innerHTML = '<div class="text-xs text-[#b8a392] dark:text-[#5f7a6b] italic text-center py-4">Belum ada postingan. Jadilah yang pertama berbagi! 🌙</div>';
+    return;
+  }
+  feedList.innerHTML = feedData.map((item, idx) => `
+    <div class="feed-item">
+      <div class="text-sm text-[#3d352c] dark:text-[#e0ece0]">${item.text || ''}</div>
+      ${item.media ? (
+        item.mediaType === 'image' 
+          ? `<img src="${item.media}" alt="Postingan" />` 
+          : `<video src="${item.media}" controls></video>`
+      ) : ''}
+      <div class="feed-meta mt-1">🕐 ${new Date(item.time).toLocaleString('id-ID')}</div>
+    </div>
+  `).join('');
+}
+
+// Tab switching
+shareTabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.getAttribute('data-sharetarget');
+    shareTabs.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    shareFeed.classList.add('hidden');
+    shareSedekah.classList.add('hidden');
+    shareLagu.classList.add('hidden');
+    if (target === 'feed') shareFeed.classList.remove('hidden');
+    else if (target === 'sedekah') shareSedekah.classList.remove('hidden');
+    else if (target === 'lagu') shareLagu.classList.remove('hidden');
+  });
+});
+
+// Pilih media
+postMedia.addEventListener('change', () => {
+  const file = postMedia.files[0];
+  if (!file) {
+    selectedMediaFile = null;
+    selectedMediaType = null;
+    postPreview.textContent = '';
+    return;
+  }
+  selectedMediaFile = file;
+  selectedMediaType = file.type.startsWith('image') ? 'image' : 'video';
+  postPreview.textContent = `📎 File dipilih: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+});
+
+// Kirim postingan
+postSubmitBtn.addEventListener('click', () => {
+  const text = postText.value.trim();
+  if (!text && !selectedMediaFile) {
+    alert('Silakan tulis sesuatu atau pilih file terlebih dahulu.');
+    return;
+  }
+
+  function savePost(mediaData) {
+    feedData.unshift({
+      text: text,
+      media: mediaData,
+      mediaType: selectedMediaType,
+      time: Date.now()
+    });
+    saveFeed();
+    renderFeed();
+    postText.value = '';
+    postMedia.value = '';
+    selectedMediaFile = null;
+    selectedMediaType = null;
+    postPreview.textContent = '';
+  }
+
+  if (selectedMediaFile) {
+    const reader = new FileReader();
+    reader.onload = (e) => savePost(e.target.result);
+    reader.readAsDataURL(selectedMediaFile);
+  } else {
+    savePost(null);
+  }
+});
+
+// Inisialisasi
+loadFeed();
     })();
