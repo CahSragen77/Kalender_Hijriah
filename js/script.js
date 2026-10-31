@@ -573,7 +573,6 @@ function listenFeed() {
     renderFeed();
   });
 }
-
 // Render daftar postingan
 function renderFeed() {
   if (!feedList) return;
@@ -583,22 +582,23 @@ function renderFeed() {
   }
   
   feedList.innerHTML = feedData.map((item) => {
-    // Cek apakah item.time ada (karena serverTimestamp butuh waktu sinkronisasi)
     const timeStr = item.time ? new Date(item.time.toDate()).toLocaleString('id-ID') : 'Baru saja';
     
     return `
-    <div class="feed-item">
-      <div class="text-sm text-[#3d352c] dark:text-[#e0ece0]">${item.text || ''}</div>
+    <div class="feed-item relative group">
+      <div class="text-sm text-[#3d352c] dark:text-[#e0ece0] pr-8">${item.text || ''}</div>
       ${item.media ? (
         item.mediaType === 'image' 
           ? `<img src="${item.media}" alt="Postingan" loading="lazy" />` 
           : `<video src="${item.media}" controls></video>`
       ) : ''}
-      <div class="feed-meta mt-1">🕐 ${timeStr}</div>
+      <div class="feed-meta mt-1 flex justify-between items-center">
+        <span>🕐 ${timeStr}</span>
+        <button onclick="hapusPostingan('${item.id}')" class="text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-400 text-xs transition opacity-0 group-hover:opacity-100 focus:opacity-100" title="Hapus Postingan">🗑️ Hapus</button>
+      </div>
     </div>
   `}).join('');
 }
-
 // Tab switching (sama seperti sebelumnya)
 shareTabs.forEach(btn => {
   btn.addEventListener('click', () => {
@@ -682,4 +682,23 @@ postSubmitBtn.addEventListener('click', async () => {
     postSubmitBtn.textContent = 'Kirim';
   }
 });
+
+      // Fungsi untuk menghapus postingan
+window.hapusPostingan = async function(id) {
+  if (!confirm("Apakah Anda yakin ingin menghapus postingan ini?")) return;
+  
+  try {
+    // Hapus dari Firestore
+    const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js");
+    await deleteDoc(doc(fb.db, "feed", id));
+    
+    // Catatan: File di Storage tidak otomatis terhapus. Untuk menghapus file juga, 
+    // kita butuh URL-nya. Tapi untuk sementara, menghapus data dari database sudah cukup.
+    
+    alert("Postingan berhasil dihapus!");
+  } catch (error) {
+    console.error("Gagal menghapus:", error);
+    alert("Gagal menghapus postingan. Cek console untuk detail.");
+  }
+};
     })();
