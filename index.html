@@ -180,19 +180,18 @@
 
   <!-- ===== TAB FEED ===== -->
   <div id="shareFeed" class="space-y-3">
+    
     <!-- Form posting -->
-    <div class="flex flex-col sm:flex-row gap-2">
-      <input type="text" id="postText" class="share-input" placeholder="Tulis ucapan, doa, atau cerita takjil..." />
-      <div class="flex gap-2">
-        <label class="cursor-pointer bg-[#d9cdc0] dark:bg-[#3b5548] text-[#2d2a24] dark:text-[#e0ece0] px-3 py-2 rounded-xl text-xs font-medium hover:bg-[#cbbdb0] dark:hover:bg-[#4d6b5a] transition flex items-center gap-1">
-          📷 Foto/Video
-          <input type="file" id="postMedia" accept="image/*,video/*" class="hidden" />
-        </label>
-        <button id="postSubmitBtn" class="bg-[#4d6b5a] text-white px-4 py-2 rounded-xl text-xs font-medium hover:bg-[#3b5548] transition">Kirim</button>
-      </div>
-    </div>
-    <div id="postPreview" class="text-xs text-[#b8a392] dark:text-[#5f7a6b]"></div>
-
+      <div class="flex flex-col gap-2">
+  <input type="text" id="postText" class="share-input" placeholder="Tulis ucapan, doa, atau cerita takjil..." />
+  <input type="text" id="postMediaLink" class="share-input" placeholder="Tempel link gambar/video di sini (opsional)..." />
+  <div class="flex justify-between items-center">
+    <p class="text-[10px] text-gray-500 dark:text-gray-400">💡 Gunakan link direct (contoh: https://i.imgur.com/xxx.jpg)</p>
+    <button id="postSubmitBtn" class="bg-[#4d6b5a] text-white px-4 py-2 rounded-xl text-xs font-medium hover:bg-[#3b5548] transition">Kirim</button>
+  </div>
+</div>
+<div id="postPreview" class="text-xs text-[#b8a392] dark:text-[#5f7a6b]"></div>
+    
     <!-- Daftar postingan -->
     <div id="feedList" class="max-h-72 overflow-y-auto pr-1">
       <div class="text-xs text-[#b8a392] dark:text-[#5f7a6b] italic text-center py-4">Belum ada postingan. Jadilah yang pertama berbagi! 🌙</div>
