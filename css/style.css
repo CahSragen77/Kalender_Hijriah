@@ -379,3 +379,11 @@
 .dark-mode .song-link:hover {
   color: #e0ece0;
 }
+
+.feed-item {
+  transition: all 0.3s ease;
+}
+.feed-item:hover {
+  border-color: rgba(255, 100, 100, 0.3); /* Sedikit warna merah saat hover */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
