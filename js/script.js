@@ -635,10 +635,13 @@ postMedia.addEventListener('change', () => {
 });
 
 // Kirim postingan ke Firebase
+// Kirim postingan ke Firebase (Sistem Tempel Link)
 postSubmitBtn.addEventListener('click', async () => {
   const text = postText.value.trim();
-  if (!text && !selectedMediaFile) {
-    alert('Silakan tulis sesuatu atau pilih file terlebih dahulu.');
+  const mediaLink = document.getElementById('postMediaLink').value.trim(); // Ambil link dari input baru
+
+  if (!text && !mediaLink) {
+    alert('Silakan tulis sesuatu atau tempel link terlebih dahulu.');
     return;
   }
   if (!fb) {
@@ -650,33 +653,33 @@ postSubmitBtn.addEventListener('click', async () => {
   postSubmitBtn.textContent = 'Mengirim...';
 
   try {
-    let mediaUrl = null;
-    
-    // Upload file ke Cloud Storage jika ada
-    if (selectedMediaFile) {
-      const storageRef = fb.ref(fb.storage, `feed/${Date.now()}_${selectedMediaFile.name}`);
-      await fb.uploadBytes(storageRef, selectedMediaFile);
-      mediaUrl = await fb.getDownloadURL(storageRef);
+    let mediaType = null;
+    // Deteksi otomatis apakah link tersebut gambar atau video
+    if (mediaLink) {
+      if (mediaLink.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+        mediaType = 'image';
+      } else if (mediaLink.match(/\.(mp4|webm|ogg)$/i)) {
+        mediaType = 'video';
+      } else {
+        mediaType = 'image'; // Jika tidak ada ekstensi, anggap gambar
+      }
     }
 
-    // Simpan teks + URL ke Firestore
+    // Simpan teks + URL ke Firestore (tanpa upload file)
     await fb.addDoc(fb.collection(fb.db, "feed"), {
       text: text,
-      media: mediaUrl,
-      mediaType: selectedMediaType,
+      media: mediaLink || null,
+      mediaType: mediaType,
       time: fb.serverTimestamp()
     });
 
     // Reset form jika berhasil
     postText.value = '';
-    postMedia.value = '';
-    selectedMediaFile = null;
-    selectedMediaType = null;
-    postPreview.textContent = '';
+    document.getElementById('postMediaLink').value = '';
     
   } catch (error) {
     console.error("Error posting:", error);
-    alert('Gagal mengirim postingan. Pastikan aturan database dan storage mengizinkan (Test Mode).');
+    alert('Gagal mengirim postingan. Pastikan Rules Database masih Test Mode.');
   } finally {
     postSubmitBtn.disabled = false;
     postSubmitBtn.textContent = 'Kirim';
