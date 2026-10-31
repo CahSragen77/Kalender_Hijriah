@@ -544,7 +544,6 @@ const shareSedekah = document.getElementById('shareSedekah');
 const shareLagu = document.getElementById('shareLagu');
 
 const postText = document.getElementById('postText');
-const postMedia = document.getElementById('postMedia');
 const postSubmitBtn = document.getElementById('postSubmitBtn');
 const postPreview = document.getElementById('postPreview');
 const feedList = document.getElementById('feedList');
@@ -615,24 +614,6 @@ shareTabs.forEach(btn => {
 });
 
 // Pilih media
-postMedia.addEventListener('change', () => {
-  const file = postMedia.files[0];
-  if (!file) {
-    selectedMediaFile = null;
-    selectedMediaType = null;
-    postPreview.textContent = '';
-    return;
-  }
-  // Batas ukuran file (Opsional: 2MB untuk gambar, 5MB untuk video)
-  if (file.size > 5 * 1024 * 1024) {
-    alert('Ukuran file terlalu besar. Maksimal 5MB.');
-    postMedia.value = '';
-    return;
-  }
-  selectedMediaFile = file;
-  selectedMediaType = file.type.startsWith('image') ? 'image' : 'video';
-  postPreview.textContent = `📎 File dipilih: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
-});
 
 // Kirim postingan ke Firebase
 // Kirim postingan ke Firebase (Sistem Tempel Link)
