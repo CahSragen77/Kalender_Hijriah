@@ -573,6 +573,7 @@ function listenFeed() {
   });
 }
 // Render daftar postingan
+// Render daftar postingan
 function renderFeed() {
   if (!feedList) return;
   if (feedData.length === 0) {
@@ -583,15 +584,28 @@ function renderFeed() {
   feedList.innerHTML = feedData.map((item) => {
     const timeStr = item.time ? new Date(item.time.toDate()).toLocaleString('id-ID') : 'Baru saja';
     
+    // Logika untuk media: Jika ada media, bungkus dengan tag <a> agar bisa diklik
+    let mediaHTML = '';
+    if (item.media) {
+      const linkTarget = item.media; // Link asli yang ditempel
+      
+      if (item.mediaType === 'image') {
+        // Gambar dibungkus <a>, ditambah efek hover dan cursor pointer
+        mediaHTML = `
+          <a href="${linkTarget}" target="_blank" rel="noopener noreferrer" title="Klik untuk memperbesar">
+            <img src="${linkTarget}" alt="Postingan" loading="lazy" class="cursor-pointer hover:opacity-90 transition-opacity duration-300" />
+          </a>`;
+      } else if (item.mediaType === 'video') {
+        // Video dibiarkan dengan kontrol, tidak perlu dibungkus <a>
+        mediaHTML = `<video src="${linkTarget}" controls class="mt-2"></video>`;
+      }
+    }
+    
     return `
     <div class="feed-item relative group">
       <div class="text-sm text-[#3d352c] dark:text-[#e0ece0] pr-8">${item.text || ''}</div>
-      ${item.media ? (
-        item.mediaType === 'image' 
-          ? `<img src="${item.media}" alt="Postingan" loading="lazy" />` 
-          : `<video src="${item.media}" controls></video>`
-      ) : ''}
-      <div class="feed-meta mt-1 flex justify-between items-center">
+      ${mediaHTML}
+      <div class="feed-meta mt-2 flex justify-between items-center border-t border-[#e5d8cc] dark:border-[#3d554a] pt-2">
         <span>🕐 ${timeStr}</span>
         <button onclick="hapusPostingan('${item.id}')" class="text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-400 text-xs transition opacity-0 group-hover:opacity-100 focus:opacity-100" title="Hapus Postingan">🗑️ Hapus</button>
       </div>
