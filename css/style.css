@@ -123,129 +123,118 @@
   }
 }
 
-/* ===== FOOTER PREMIUM ===== */
-.footer-credit-section {
-  padding: 1.5rem 0 0.5rem 0;
+/* ===== FOOTER ISLAMI PREMIUM ===== */
+.footer-islamic {
+  border-top: 1px solid rgba(180, 150, 120, 0.2);
+  transition: all 0.5s ease;
+}
+.dark-mode .footer-islamic {
+  border-top: 1px solid rgba(120, 140, 130, 0.2);
 }
 
-.credit-divider {
-  border: none;
-  height: 2px;
-  background: linear-gradient(to right, transparent, #d6c8bc, transparent);
-  margin-bottom: 1.2rem;
-  opacity: 0.6;
-}
-.dark-mode .credit-divider {
-  background: linear-gradient(to right, transparent, #3f554a, transparent);
-}
-
-.credit-text {
-  font-size: 0.75rem;
-  color: #a28d7a;
-  line-height: 1.8;
-}
-.dark-mode .credit-text {
-  color: #7e9a88;
-}
-
-.credit-text strong {
-  color: #3d2c1e;
-  font-weight: 600;
-}
-.dark-mode .credit-text strong {
-  color: #d0e0d0;
-}
-
-.social-link {
-  color: #8b7a6a;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  font-weight: 500;
-  padding: 0 2px;
-}
-.social-link:hover {
-  color: #3d2c1e;
-  text-decoration: underline;
-}
-.dark-mode .social-link {
-  color: #a0b8a8;
-}
-.dark-mode .social-link:hover {
-  color: #e0ece0;
-}
-
-/* ===== LOGO PAUS GLOWING ===== */
-.whale-logo {
-  display: inline-block;
-  font-size: 1.2rem;
-  animation: whaleGlow 2.5s ease-in-out infinite;
-  filter: drop-shadow(0 0 6px rgba(60, 120, 100, 0.3));
-}
-@keyframes whaleGlow {
-  0% { 
-    filter: drop-shadow(0 0 4px rgba(60, 120, 100, 0.2));
-    transform: scale(1);
-  }
-  50% { 
-    filter: drop-shadow(0 0 20px rgba(60, 200, 160, 0.8)) 
-            drop-shadow(0 0 40px rgba(60, 200, 160, 0.4));
-    transform: scale(1.08);
-  }
-  100% { 
-    filter: drop-shadow(0 0 4px rgba(60, 120, 100, 0.2));
-    transform: scale(1);
-  }
-}
-.dark-mode .whale-logo {
-  animation: whaleGlowDark 2.5s ease-in-out infinite;
-}
-@keyframes whaleGlowDark {
-  0% { 
-    filter: drop-shadow(0 0 4px rgba(80, 200, 160, 0.3));
-    transform: scale(1);
-  }
-  50% { 
-    filter: drop-shadow(0 0 25px rgba(80, 220, 180, 0.9)) 
-            drop-shadow(0 0 50px rgba(80, 220, 180, 0.5));
-    transform: scale(1.08);
-  }
-  100% { 
-    filter: drop-shadow(0 0 4px rgba(80, 200, 160, 0.3));
-    transform: scale(1);
-  }
-}
-
-/* ===== FLOATING WHATSAPP ===== */
-.wa-floating {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 56px;
-  height: 56px;
-  background: #25D366;
-  border-radius: 50%;
+/* Ornamen Islami */
+.ornament-divider {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
-  transition: all 0.3s ease;
-  z-index: 999;
-  animation: waPulse 2.5s ease-in-out infinite;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+.ornament-star {
+  color: #b48c6c;
+  font-size: 14px;
+}
+.dark-mode .ornament-star {
+  color: #8fb09a;
+}
+.ornament-line {
+  height: 1px;
+  width: 50px;
+  background: linear-gradient(to right, transparent, #b48c6c, transparent);
+}
+.dark-mode .ornament-line {
+  background: linear-gradient(to right, transparent, #8fb09a, transparent);
+}
+
+/* Ikon Sosial Media (Model Kubah) */
+.social-footer-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+}
+
+.social-icon {
+  position: relative;
+  width: 45px;
+  height: 45px;
+  border-radius: 50% 50% 0 0; /* Membentuk sedikit kubah */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
   text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-bottom: 3px solid rgba(0,0,0,0.2);
 }
-.wa-floating:hover {
-  transform: scale(1.1) translateY(-3px);
-  box-shadow: 0 8px 30px rgba(37, 211, 102, 0.6);
+
+/* Efek Hover: Naik dan Bercahaya */
+.social-icon:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  border-bottom-color: transparent;
 }
-.wa-floating svg {
-  width: 30px;
-  height: 30px;
-  fill: white;
+
+/* Warna Spesifik Ikon */
+.social-icon.linkedin { background: linear-gradient(135deg, #0077b5, #005582); }
+.social-icon.facebook { background: linear-gradient(135deg, #1877f2, #0c4a9c); }
+.social-icon.instagram { background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af); }
+.social-icon.whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); }
+.social-icon.shopee { background: linear-gradient(135deg, #ee4d2d, #b3271e); }
+.social-icon.tiktok { background: linear-gradient(135deg, #000000, #25F4EE); }
+
+/* Tooltip */
+.social-icon .tooltip {
+  position: absolute;
+  top: -35px;
+  background: #3d2c1e;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
 }
-@keyframes waPulse {
-  0% { box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4); }
-  50% { box-shadow: 0 4px 40px rgba(37, 211, 102, 0.7), 0 0 60px rgba(37, 211, 102, 0.2); }
-  100% { box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4); }
+.dark-mode .social-icon .tooltip {
+  background: #d0e0d0;
+  color: #1f2a26;
+}
+
+.social-icon .tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px 5px 0;
+  border-style: solid;
+  border-color: #3d2c1e transparent transparent transparent;
+}
+.dark-mode .social-icon .tooltip::after {
+  border-color: #d0e0d0 transparent transparent transparent;
+}
+
+.social-icon:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -45px;
 }
 
 /* ===== FITUR BERBAGI & SILATURAHMI ===== */
