@@ -537,166 +537,150 @@ window.addEventListener('load', () => {
   }
 */
 
-            // ---------- FITUR BERBAGI & SILATURAHMI (FIREBASE) ----------
-const shareTabs = document.querySelectorAll('.share-tab-btn');
-const shareFeed = document.getElementById('shareFeed');
-const shareSedekah = document.getElementById('shareSedekah');
-const shareLagu = document.getElementById('shareLagu');
+                  // ---------- FITUR BERBAGI & SILATURAHMI (FIREBASE) ----------
+      const shareTabs = document.querySelectorAll('.share-tab-btn');
+      const shareFeed = document.getElementById('shareFeed');
+      const shareSedekah = document.getElementById('shareSedekah');
+      const shareLagu = document.getElementById('shareLagu');
 
-const postText = document.getElementById('postText');
-const postSubmitBtn = document.getElementById('postSubmitBtn');
-const postPreview = document.getElementById('postPreview');
-const feedList = document.getElementById('feedList');
+      const postText = document.getElementById('postText');
+      const postMediaLink = document.getElementById('postMediaLink');
+      const postSubmitBtn = document.getElementById('postSubmitBtn');
+      const postPreview = document.getElementById('postPreview');
+      const feedList = document.getElementById('feedList');
 
-let selectedMediaFile = null;
-let selectedMediaType = null;
-let feedData = [];
-let fb = null;
+      let feedData = [];
+      let fb = null;
 
-// Tunggu Firebase siap (karena script module berjalan asinkron)
-const checkFirebase = setInterval(() => {
-  if (window.FirebaseApp) {
-    fb = window.FirebaseApp;
-    clearInterval(checkFirebase);
-    listenFeed(); // Mulai dengarkan database
-  }
-}, 100);
+      // Tunggu Firebase siap
+      const checkFirebase = setInterval(() => {
+        if (window.FirebaseApp) {
+          fb = window.FirebaseApp;
+          clearInterval(checkFirebase);
+          listenFeed();
+        }
+      }, 100);
 
-// Dengarkan Feed secara Real-time
-function listenFeed() {
-  if (!fb) return;
-  const q = fb.query(fb.collection(fb.db, "feed"), fb.orderBy("time", "desc"));
-  
-  fb.onSnapshot(q, (snapshot) => {
-    feedData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    renderFeed();
-  });
-}
-// Render daftar postingan
-// Render daftar postingan
-function renderFeed() {
-  if (!feedList) return;
-  if (feedData.length === 0) {
-    feedList.innerHTML = '<div class="text-xs text-[#b8a392] dark:text-[#5f7a6b] italic text-center py-4">Belum ada postingan. Jadilah yang pertama berbagi! 🌙</div>';
-    return;
-  }
-  
-  feedList.innerHTML = feedData.map((item) => {
-    const timeStr = item.time ? new Date(item.time.toDate()).toLocaleString('id-ID') : 'Baru saja';
-    
-    // Logika untuk media: Jika ada media, bungkus dengan tag <a> agar bisa diklik
-    let mediaHTML = '';
-    if (item.media) {
-      const linkTarget = item.media; // Link asli yang ditempel
-      
-      if (item.mediaType === 'image') {
-        // Gambar dibungkus <a>, ditambah efek hover dan cursor pointer
-        mediaHTML = `
-          <a href="${linkTarget}" target="_blank" rel="noopener noreferrer" title="Klik untuk memperbesar">
-            <img src="${linkTarget}" alt="Postingan" loading="lazy" class="cursor-pointer hover:opacity-90 transition-opacity duration-300" />
-          </a>`;
-      } else if (item.mediaType === 'video') {
-        // Video dibiarkan dengan kontrol, tidak perlu dibungkus <a>
-        mediaHTML = `<video src="${linkTarget}" controls class="mt-2"></video>`;
+      // Dengarkan Feed secara Real-time
+      function listenFeed() {
+        if (!fb) return;
+        const q = fb.query(fb.collection(fb.db, "feed"), fb.orderBy("time", "desc"));
+        
+        fb.onSnapshot(q, (snapshot) => {
+          feedData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          renderFeed();
+        });
       }
-    }
-    
-    return `
-    <div class="feed-item relative group">
-      <div class="text-sm text-[#3d352c] dark:text-[#e0ece0] pr-8">${item.text || ''}</div>
-      ${mediaHTML}
-      <div class="feed-meta mt-2 flex justify-between items-center border-t border-[#e5d8cc] dark:border-[#3d554a] pt-2">
-        <span>🕐 ${timeStr}</span>
-        <button onclick="hapusPostingan('${item.id}')" class="text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-400 text-xs transition opacity-0 group-hover:opacity-100 focus:opacity-100" title="Hapus Postingan">🗑️ Hapus</button>
-      </div>
-    </div>
-  `}).join('');
-}
-// Tab switching (sama seperti sebelumnya)
-shareTabs.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = btn.getAttribute('data-sharetarget');
-    shareTabs.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    shareFeed.classList.add('hidden');
-    shareSedekah.classList.add('hidden');
-    shareLagu.classList.add('hidden');
-    if (target === 'feed') shareFeed.classList.remove('hidden');
-    else if (target === 'sedekah') shareSedekah.classList.remove('hidden');
-    else if (target === 'lagu') shareLagu.classList.remove('hidden');
-  });
-});
 
-// Pilih media
-
-// Kirim postingan ke Firebase
-// Kirim postingan ke Firebase (Sistem Tempel Link)
-postSubmitBtn.addEventListener('click', async () => {
-  const text = postText.value.trim();
-  const mediaLink = document.getElementById('postMediaLink').value.trim(); // Ambil link dari input baru
-
-  if (!text && !mediaLink) {
-    alert('Silakan tulis sesuatu atau tempel link terlebih dahulu.');
-    return;
-  }
-  if (!fb) {
-    alert('Koneksi ke database belum siap. Tunggu sebentar atau refresh halaman.');
-    return;
-  }
-
-  postSubmitBtn.disabled = true;
-  postSubmitBtn.textContent = 'Mengirim...';
-
-  try {
-    let mediaType = null;
-    // Deteksi otomatis apakah link tersebut gambar atau video
-    if (mediaLink) {
-      if (mediaLink.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
-        mediaType = 'image';
-      } else if (mediaLink.match(/\.(mp4|webm|ogg)$/i)) {
-        mediaType = 'video';
-      } else {
-        mediaType = 'image'; // Jika tidak ada ekstensi, anggap gambar
+      // Render daftar postingan
+      function renderFeed() {
+        if (!feedList) return;
+        if (feedData.length === 0) {
+          feedList.innerHTML = '<div class="text-xs text-[#b8a392] dark:text-[#5f7a6b] italic text-center py-4">Belum ada postingan. Jadilah yang pertama berbagi! 🌙</div>';
+          return;
+        }
+        
+        feedList.innerHTML = feedData.map((item) => {
+          const timeStr = item.time ? new Date(item.time.toDate()).toLocaleString('id-ID') : 'Baru saja';
+          
+          let mediaHTML = '';
+          if (item.media) {
+            if (item.mediaType === 'image') {
+              // Gunakan tag <a> untuk membungkus gambar agar bisa diklik
+              mediaHTML = `
+                <a href="${item.media}" target="_blank" rel="noopener noreferrer" title="Klik untuk melihat ukuran penuh">
+                  <img src="${item.media}" alt="Postingan" loading="lazy" class="cursor-pointer hover:opacity-90 transition-opacity duration-300" />
+                </a>`;
+            } else if (item.mediaType === 'video') {
+              mediaHTML = `<video src="${item.media}" controls class="mt-2"></video>`;
+            }
+          }
+          
+          return `
+          <div class="feed-item relative group">
+            <div class="text-sm text-[#3d352c] dark:text-[#e0ece0] pr-8">${item.text || ''}</div>
+            ${mediaHTML}
+            <div class="feed-meta mt-2 flex justify-between items-center border-t border-[#e5d8cc] dark:border-[#3d554a] pt-2">
+              <span>🕐 ${timeStr}</span>
+              <button onclick="hapusPostingan('${item.id}')" class="text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-400 text-xs transition opacity-0 group-hover:opacity-100 focus:opacity-100" title="Hapus Postingan">🗑️ Hapus</button>
+            </div>
+          </div>
+        `}).join('');
       }
-    }
 
-    // Simpan teks + URL ke Firestore (tanpa upload file)
-    await fb.addDoc(fb.collection(fb.db, "feed"), {
-      text: text,
-      media: mediaLink || null,
-      mediaType: mediaType,
-      time: fb.serverTimestamp()
-    });
+      // Tab switching
+      shareTabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-sharetarget');
+          shareTabs.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          shareFeed.classList.add('hidden');
+          shareSedekah.classList.add('hidden');
+          shareLagu.classList.add('hidden');
+          if (target === 'feed') shareFeed.classList.remove('hidden');
+          else if (target === 'sedekah') shareSedekah.classList.remove('hidden');
+          else if (target === 'lagu') shareLagu.classList.remove('hidden');
+        });
+      });
 
-    // Reset form jika berhasil
-    postText.value = '';
-    document.getElementById('postMediaLink').value = '';
-    
-  } catch (error) {
-    console.error("Error posting:", error);
-    alert('Gagal mengirim postingan. Pastikan Rules Database masih Test Mode.');
-  } finally {
-    postSubmitBtn.disabled = false;
-    postSubmitBtn.textContent = 'Kirim';
-  }
-});
+      // Kirim postingan ke Firebase
+      postSubmitBtn.addEventListener('click', async () => {
+        const text = postText.value.trim();
+        const mediaLink = postMediaLink.value.trim();
+
+        if (!text && !mediaLink) {
+          alert('Silakan tulis sesuatu atau tempel link terlebih dahulu.');
+          return;
+        }
+        if (!fb) {
+          alert('Koneksi ke database belum siap. Tunggu sebentar atau refresh halaman.');
+          return;
+        }
+
+        postSubmitBtn.disabled = true;
+        postSubmitBtn.textContent = 'Mengirim...';
+
+        try {
+          let mediaType = null;
+          if (mediaLink) {
+            // Deteksi ekstensi dengan lebih akurat (termasuk parameter link)
+            if (mediaLink.match(/\.(jpeg|jpg|gif|png|webp)/i)) {
+              mediaType = 'image';
+            } else if (mediaLink.match(/\.(mp4|webm|ogg)/i)) {
+              mediaType = 'video';
+            } else {
+              mediaType = 'image'; // Anggap gambar jika tidak ada ekstensi jelas
+            }
+          }
+
+          await fb.addDoc(fb.collection(fb.db, "feed"), {
+            text: text,
+            media: mediaLink || null,
+            mediaType: mediaType,
+            time: fb.serverTimestamp()
+          });
+
+          postText.value = '';
+          postMediaLink.value = '';
+          
+        } catch (error) {
+          console.error("Error posting:", error);
+          alert('Gagal mengirim postingan.');
+        } finally {
+          postSubmitBtn.disabled = false;
+          postSubmitBtn.textContent = 'Kirim';
+        }
+      });
 
       // Fungsi untuk menghapus postingan
-window.hapusPostingan = async function(id) {
-  if (!confirm("Apakah Anda yakin ingin menghapus postingan ini?")) return;
-  
-  try {
-    // Hapus dari Firestore
-    const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js");
-    await deleteDoc(doc(fb.db, "feed", id));
-    
-    // Catatan: File di Storage tidak otomatis terhapus. Untuk menghapus file juga, 
-    // kita butuh URL-nya. Tapi untuk sementara, menghapus data dari database sudah cukup.
-    
-    alert("Postingan berhasil dihapus!");
-  } catch (error) {
-    console.error("Gagal menghapus:", error);
-    alert("Gagal menghapus postingan. Cek console untuk detail.");
-  }
-};
+      window.hapusPostingan = async function(id) {
+        if (!confirm("Apakah Anda yakin ingin menghapus postingan ini?")) return;
+        try {
+          const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js");
+          await deleteDoc(doc(fb.db, "feed", id));
+        } catch (error) {
+          console.error("Gagal menghapus:", error);
+          alert("Gagal menghapus postingan.");
+        }
+      };
     })();
